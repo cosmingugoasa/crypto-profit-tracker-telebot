@@ -9,10 +9,12 @@ Currently under development. Working on :
 Telegram Bot used to check your profit on BSC based shitcoins. Keeps track of users/investments and coins/tokens via json files.
 Gathers info via scraping on different sites and returns your profit (total value of your wallet - investment) in Euro.
 
-**/help**
+### **/help**
+
 ![](/media/help.png)
 
-**/cryptoname**
+### **/cryptoname**
+ 
  ![](/media/cryptoname.png)
 
 ## Setup
