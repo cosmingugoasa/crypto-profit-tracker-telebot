@@ -6,6 +6,8 @@ import util
 
 load_dotenv()
 
+# release API_KEY
+# debug API_KEY_DEV
 bot = telebot.TeleBot(os.getenv("API_KEY_DEV"), parse_mode="HTML")
 
 @bot.message_handler(commands=['start'])
@@ -33,7 +35,12 @@ def help(message):
 
     "🚀\n<b>/[cryptoname]</b>\n" + 
     "<i>ex : /feg</i>\n" +
-    "<i>Check your profit on that crypto</i>\n\n"
+    "<i>Check your profit on that crypto</i>\n\n" +
+
+     "⚙️\n<b>/[pref]</b> [preference] [value]\n" +
+     "<i>ex : /pref currency usd</i>\n" +
+     "<i>available preferences: " + ", ".join(util.pref_list) + "</i>\n" +
+     "<i>Set a profile preference</i>\n\n"
     )
 
 ############################################################################
@@ -65,6 +72,7 @@ def addc(message):
 
 ############################################################################
 
+
 @bot.message_handler(commands=['add'])
 def add(message):
     owner = message.from_user.full_name
@@ -80,10 +88,41 @@ def add(message):
 
 ############################################################################
 
+@bot.message_handler(commands=['pref'])
+def pref(message):
+    split = message.text.split(" ")
+
+    # check number of arguments
+    if len(split) != 3:
+        bot.send_message(message.chat.id, "Wrong number of arguments")
+        return
+
+    pref = split[1].lower()
+    val = split[2].lower()
+
+    # preference exists
+    if not util.checkPrefExists(pref):
+        bot.send_message(message.chat.id, "Preference " + split[1] + " doesn't exists")
+        return
+
+    # pref vaule exists
+    if not util.checkPrefValueExists(pref, val):
+        bot.send_message(message.chat.id, "Value not possible, available choices:\n" +
+                         ", ".join(util.getPreferenceValues(pref)))
+        return
+
+    ret_val = util.setPreference(message.from_user.full_name, pref, val)
+    if ret_val:
+        bot.send_message(message.chat.id, "ok!")
+    else:
+        bot.send_message(message.chat.id, "Fail")
+
+############################################################################
+
 @bot.message_handler(regexp="\/")
 def crypto_fetch(message):
 
-    #check in json if investement for this crypto and user exists
+    # check in json if investement for this crypto and user exists
     investment = util.getInvestmentOfFromJson(message.from_user.full_name, message.text[1:].upper()) 
     if (investment == None):
         bot.reply_to(message, "your poor ass doesn't have this crypto")
@@ -99,33 +138,31 @@ def crypto_fetch(message):
         bot.reply_to(message, "Error in getTokenBalanceFromBSCscan")
         return
 
-    busdBalance = util.simulateTradeToBUSD(crypto_address, bsc_scan['balance'])
-    if(busdBalance == None):
+    balance = util.simulateTradeToBUSD(crypto_address, bsc_scan['balance'])
+    if(balance == None):
         bot.reply_to(message, "Error in simulateTradeToBUSD")
         return
-    
-    eurBalance = util.BUSDtoEUR(busdBalance)
-    if(eurBalance == None):
+
+    symbol = "$"
+    if util.getPreference(message.from_user.full_name, "currency") == "eur":
+        balance = util.BUSDtoEUR(balance)
+        symbol = "€"
+
+    if balance is None:
         bot.reply_to(message, "BUSDtoEUR")
         return
 
-    profit = float(eurBalance) - float(investment)
-    if(profit > 0.0):
-        bot.send_message(message.chat.id, 
-        "<b>" + message.from_user.full_name +  "</b> your profit on <b>" +
-        message.text[1:].upper() + "</b> is : \n" +
-        "🟢💶   <b>" + "{:.2f}".format(float(profit)) + "</b>")
-    else:
-        bot.send_message(message.chat.id, 
-        "<b>" + message.from_user.full_name +  "</b> your profit on <b>" +
-        message.text[1:].upper() + "</b> is : \n" +
-        "🔴💶   <b>" + "{:.2f}".format(float(profit)) + "</b>")
+    profit = float(balance) - float(investment)
+    color = "🔴"
+    if profit > 0.0:
+        color = "🟢"
 
-############################################################################
+    bot.send_message(message.chat.id,
+        "<b>" + message.from_user.full_name + "</b> your profit on <b>" +
+        message.text[1:].upper() + "</b> is : \n" +
+        color + "    <b>" + symbol + " {:.2f}".format(float(profit)) + "</b>")
 
-@bot.message_handler(commands=['pref'])
-def pref(message):
-    pass
+
 ############################################################################
 
 bot.polling()

@@ -21,11 +21,15 @@ options.add_argument("--disable-gpu")
 options.add_argument("--mute-audio")
 driver = webdriver.Chrome(chromeDriverPath, options=options)
 
+pref_list = {
+    "currency": ["eur", "usd"]
+}
+
 #######################################################
 #                   BSC Scraping                      #
 #######################################################
 
-#get token balance, specifying token contract adress and wallet adress
+# get token balance, specifying token contract adress and wallet adress
 def getTokenBalanceFromBSCscan(tokenAdress, walletAdress):
     try:
         driver.get("https://bscscan.com/token/" + tokenAdress + "?a=" + walletAdress)
@@ -42,7 +46,7 @@ def getTokenBalanceFromBSCscan(tokenAdress, walletAdress):
     except:
         return None
 
-#trade your_crypto for bnb simulation, than extract trade info
+# trade your_crypto for bnb simulation, than extract trade info
 def simulateTradeToBUSD(tokenAddress, amount):
     driver.get("https://exchange.pancakeswap.finance/#/swap")
     
@@ -104,17 +108,18 @@ def simulateTradeToBUSD(tokenAddress, amount):
         print("Couldnt print output balance.\n" + e)
         return None
 
-#change from bnb to eur
+
+# change from bnb to eur
 def BUSDtoEUR(amount):
 
-    #get eur to dollar value
+    # get eur to dollar value
     driver.get("https://www.xe.com/it/currencyconverter/convert/?Amount=1&From=USD&To=EUR")
     try:
         EURtoUSD = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.XPATH, "//*[@id=\"__next\"]/div[2]/div[2]/section/div[2]/div/main/form/div[2]/div[1]/p[2]"))
         )
         EURtoUSD = EURtoUSD.text.split(" ")[0].replace(',','.')
-        #print(" ➜   USD to EUR rate : " + EURtoUSD)
+        # print(" ➜   USD to EUR rate : " + EURtoUSD)
     except Exception as e:
         print("Couldnt get EUR to USD value")
         return None
@@ -173,12 +178,69 @@ def addContractToJson(crypto_name, crypto_address):
     except:
         print("Errore in addContractToJson()")
 
-def addPreferenceToJson(key, value):
-    pass
+
+# returns possible preferences
+def getAvailablePreferences():
+    return pref_list.keys()
+
+
+# returns possible values for preference
+def getPreferenceValues(pref):
+    return pref_list[pref]
+
+
+# returns True if preference exists
+def checkPrefExists(pref):
+    if pref in getAvailablePreferences():
+        return True
+    else:
+        return False
+
+
+# return requested preference value for user, if exists
+def getPreference(owner, pref):
+    try:
+        with open("users.json") as f:
+            data = json.load(f)
+            if pref in data[owner]["preferences"].keys():
+                return data[owner]["preferences"][pref]
+            else:
+                False
+    except:
+        return False
+
+
+
+# update a preference in the owner json
+# correctness of preference and value must be checked before
+# returns True/False if it can write to file
+def setPreference(owner, pref, value):
+    try:
+        with open("users.json") as f:
+            data = json.load(f)
+            data[owner]["preferences"].update({pref: value})
+
+        with open("users.json", "w") as f:
+            json.dump(data, f, indent=4)
+
+    except:
+        return False
+
+    return True
+
+
+# returns True if value exists for preference
+def checkPrefValueExists(pref, value):
+    if value in getPreferenceValues(pref):
+        return True
+    else:
+        return False
+
+
 
 def addInvestmentToJson(owner, crypto, amount):
     json_contract = {
-        crypto : float(amount)
+        crypto: float(amount)
     }
 
     with open("users.json") as f:        
@@ -188,10 +250,16 @@ def addInvestmentToJson(owner, crypto, amount):
     with open("users.json", "w") as f: 
         json.dump(data, f, indent=4)
 
+
+# default preferences:
+#      currency: eur
 def regUser(owner, address):
     j = {
-        owner : {
-            "address" : address
+        owner: {
+            "address": address,
+            "preferences": {
+                "currency": "eur"
+            }
         }
     }
     try:
