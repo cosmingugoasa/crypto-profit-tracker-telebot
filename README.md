@@ -31,7 +31,14 @@ Install dependencies from the *requirements.txt*. You **MUST** be in the same fo
 ```sh
 $ pip install -r requirements.txt
 ```
-## Setup config file
+
+Create 2 files for user and contracts :
+```sh
+$ touch users.json
+$ touch contracts.json
+```
+
+## Setup env file
 Create a '.env' file in the project folder. And follow the current syntax need :
 ```sh
 CHROME_DRIVER_PATH=<chromedriver.exe path>
