@@ -1,4 +1,3 @@
-from test import update_json
 import telebot
 import os
 from dotenv import load_dotenv

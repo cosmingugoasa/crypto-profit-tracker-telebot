@@ -1,5 +1,6 @@
 /__pycache__
 /.vscode
+/botenv
 *.env
 *.json
 test.py
