@@ -21,6 +21,10 @@ options.add_argument("--disable-gpu")
 options.add_argument("--mute-audio")
 driver = webdriver.Chrome(chromeDriverPath, options=options)
 
+#######################################################
+#                   BSC Scraping                      #
+#######################################################
+
 #get token balance, specifying token contract adress and wallet adress
 def getTokenBalanceFromBSCscan(tokenAdress, walletAdress):
     try:
@@ -124,42 +128,19 @@ def BUSDtoEUR(amount):
 def getInvestmentOfFromJson(owner, crypto):
     with open("users.json") as f:        
         data = json.load(f)
-        for user in data:
-            if(user == owner):
-                for entry in data[user]:
-                    entries = list(entry.items())
-                    for key, value in entries:
-                        if(key == "crypto" and value == crypto):
-                            return entries[+1][1]
-        
-    return None
-
-def updateJson(json_data):
-    with open("users.json") as f:        
-        data = json.load(f)
-        #check if user exists and update only
-        for user in data:
-            if(user == str(json_data)[2:].split("'")[0]):
-                data[user].append((json_data[str(json_data)[2:].split("'")[0]])[0])
-                return data
-
-        #if user not found create it
-        data.update(json_data)        
-        return data
-
-def rewriteJson(data):
-    with open("users.json", "w") as f:
-        json.dump(data, f, indent=4)
+        try:
+           return data[owner][crypto]
+        except:
+            return None
 
 def checkIfUserExists(user):
     with open("users.json") as f:        
         data = json.load(f)
-        #check if user exists and update only
-        for _user in data:
-            if(_user == user):
+        try:
+            if(data[user]):
                 return True
-        
-    return False
+        except:
+            return False
 
 def getCryptoAddressFromJson(crypto):
     with open("contracts.json") as f:        
@@ -173,7 +154,7 @@ def getOwnerAddressFromJson(owner):
     with open("users.json") as f:        
         data = json.load(f)
         try:
-            return data[owner][0]["address"]
+            return data[owner]["address"]
         except:
             return None
 
@@ -182,10 +163,43 @@ def addContractToJson(crypto_name, crypto_address):
         crypto_name.upper() : crypto_address
     }
 
-    with open("contracts.json") as f:        
-        data = json.load(f)
-        data.update(json_contract)
+    try:
+        with open("contracts.json") as f:        
+            data = json.load(f)
+            data.update(json_contract)
+        
+        with open("contracts.json", "w") as f:
+            json.dump(data, f, indent=4)
+    except:
+        print("Errore in addContractToJson()")
+
+def addPreferenceToJson(key, value):
+    pass
+
+def addInvestmentToJson(owner, crypto, amount):
+    json_contract = {
+        crypto : float(amount)
+    }
+
+    with open("users.json") as f:        
+        data = json.load(f)  
+        data[owner].update(json_contract)
     
-    with open("contracts.json", "w") as f:
+    with open("users.json", "w") as f: 
         json.dump(data, f, indent=4)
 
+def regUser(owner, address):
+    j = {
+        owner : {
+            "address" : address
+        }
+    }
+    try:
+        with open("users.json") as f:        
+            data = json.load(f)  
+            data.update(j)
+
+        with open("users.json", "w") as f:
+            json.dump(data, f, indent=4)
+    except Exception as e:
+        print(e)

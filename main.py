@@ -6,7 +6,7 @@ import util
 
 load_dotenv()
 
-bot = telebot.TeleBot(os.getenv("API_KEY"), parse_mode="HTML")
+bot = telebot.TeleBot(os.getenv("API_KEY_DEV"), parse_mode="HTML")
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -46,14 +46,7 @@ def reg(message):
         bot.reply_to(message, "⚠️ User <b>" + message.from_user.full_name + "</b> alredy exists. Contact admin.")
         exit()
 
-    json_data = {
-        str(owner) : [{
-            'address' : str(message.text.split(" ")[1])
-        }]
-    }
-
-    new_data = util.updateJson(json_data)
-    util.rewriteJson(new_data)
+    util.regUser(owner, message.text.split(" ")[1])
 
     bot.send_message(message.chat.id, "✅ Registered : <b>" + message.from_user.full_name + "</b>")
 
@@ -75,18 +68,13 @@ def addc(message):
 @bot.message_handler(commands=['add'])
 def add(message):
     owner = message.from_user.full_name
-    crypto_name = message.text.split(" ")[1]
+    crypto_name = message.text.split(" ")[1].upper()
     investment = message.text.split(" ")[2]
 
-    json_data = {
-        str(owner) : [{
-            'crypto' : str(crypto_name).upper(),
-            'investment' : float(investment)
-        }]
-    }
-    
-    new_data = util.updateJson(json_data)
-    util.rewriteJson(new_data)
+    try:
+        util.addInvestmentToJson(owner, crypto_name, investment)
+    except:
+        bot.send_message(message.chat.id, "⚠️ Failed to add investment")
 
     bot.send_message(message.chat.id, "✅ Added investment of <b>" + investment + "</b> on <b>" + crypto_name.upper() + "</b> for <b>" + message.from_user.full_name + "</b>")
 
@@ -104,6 +92,7 @@ def crypto_fetch(message):
 
     crypto_address = util.getCryptoAddressFromJson(message.text[1:].upper())
     owner_address = util.getOwnerAddressFromJson(message.from_user.full_name)
+
     bsc_scan = util.getTokenBalanceFromBSCscan(crypto_address, owner_address)
     
     if(bsc_scan == None):
@@ -134,5 +123,9 @@ def crypto_fetch(message):
 
 ############################################################################
 
+@bot.message_handler(commands=['pref'])
+def pref(message):
+    pass
+############################################################################
 
 bot.polling()
