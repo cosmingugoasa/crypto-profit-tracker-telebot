@@ -1,6 +1,7 @@
 # Crypto Profit Telegram Bot v1.0
 
  ## W.I.P.
+In v1.0 the code is not well commented yet. Switch to */dev* branch for better comments.
 Currently under development. Working on :
 - Reliability
 - More functionalities
