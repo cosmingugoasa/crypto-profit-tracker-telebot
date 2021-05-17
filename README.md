@@ -12,7 +12,7 @@ Gathers info via scraping on different sites and returns your profit (total valu
 **/help**
 ![](/media/help.png)
 
-**/<crypto name>**
+**/cryptoname**
  ![](/media/cryptoname.png)
 
 ## Setup
