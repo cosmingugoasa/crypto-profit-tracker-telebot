@@ -14,7 +14,7 @@ Gathers info via scraping on different sites and returns your profit (total valu
 
 ![](/media/help.png)
 
-### **/cryptoname**
+### **/...**
  
  ![](/media/cryptoname.png)
 
