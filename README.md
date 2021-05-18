@@ -1,4 +1,4 @@
-# Crypto Profit Telegram Bot v1.0
+# Crypto Profit Telegram Bot v1.2
 
  ## W.I.P.
 In v1.0 the code is not well commented yet. Switch to */dev* branch for better comments. <br>
