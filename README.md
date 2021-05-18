@@ -1,7 +1,6 @@
 # Crypto Profit Telegram Bot v1.2
 
- ## W.I.P.
-In v1.0 the code is not well commented yet. Switch to */dev* branch for better comments. <br>
+## W.I.P.
 Currently under development. Working on :
 - Reliability
 - More functionalities
@@ -9,6 +8,33 @@ Currently under development. Working on :
 ## Description
 Telegram Bot used to check your profit on BSC based shitcoins. Keeps track of users/investments and coins/tokens via json files.
 Gathers info via scraping on different sites and returns your profit (total value of your wallet - investment) in Euro.
+
+⚒ **C O M M A N D S** ⚒" 
+
+👤
+**/reg*** [your wallet address] 
+*ex : /reg 0x1234567890asdfgh*
+*Register your user with wallet address*
+
+💸
+**/add** [token/coin name] [investment]
+*ex : /add feg 25*
+*Add an investment you made (BSC only for now)*
+
+📈
+**/addcontract** [token/coin name] [contract address]
+*ex : /addcontract reth 0x00000000*
+*Add a contract to contract list (BSC only for now)*
+
+🚀
+**/[cryptoname]**
+*ex : /feg*
+*Check your profit on that crypto*
+
+⚙️
+**/[pref]** [preference] [value]
+*ex : /pref currency usd*
+*Set a profile preference*
 
 ### **/help**
 
