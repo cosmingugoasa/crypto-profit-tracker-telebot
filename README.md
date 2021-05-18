@@ -12,29 +12,29 @@ Gathers info via scraping on different sites and returns your profit (total valu
 ⚒ **C O M M A N D S** ⚒" 
 
 👤
-**/reg*** [your wallet address] 
-*ex : /reg 0x1234567890asdfgh*
-*Register your user with wallet address*
+**/reg*** [your wallet address] <br>
+*ex : /reg 0x1234567890asdfgh* <br>
+*Register your user with wallet address* <br><br>
 
 💸
-**/add** [token/coin name] [investment]
-*ex : /add feg 25*
-*Add an investment you made (BSC only for now)*
+**/add** [token/coin name] [investment] <br>
+*ex : /add feg 25* <br>
+*Add an investment you made (BSC only for now)* <br><br>
 
 📈
-**/addcontract** [token/coin name] [contract address]
-*ex : /addcontract reth 0x00000000*
-*Add a contract to contract list (BSC only for now)*
+**/addcontract** [token/coin name] [contract address] <br> 
+*ex : /addcontract reth 0x00000000* <br>
+*Add a contract to contract list (BSC only for now)* <br><br>
 
 🚀
-**/[cryptoname]**
-*ex : /feg*
-*Check your profit on that crypto*
+**/[cryptoname]** <br>
+*ex : /feg* <br> 
+*Check your profit on that crypto* <br> <br>
 
 ⚙️
-**/[pref]** [preference] [value]
-*ex : /pref currency usd*
-*Set a profile preference*
+**/[pref]** [preference] [value] <br>
+*ex : /pref currency usd* <br>
+*Set a profile preference* <br><br>
 
 ### **/help**
 
