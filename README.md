@@ -48,8 +48,7 @@ Gathers info via scraping on different sites and returns your profit (total valu
 Install chrome driver for python : 
 [**Download**](https://sites.google.com/a/chromium.org/chromedriver/downloads)
 
-Python env is already present in */botenv*.
-If you want to recreate your own env : 
+Create your own env for this project: 
 ```sh
 $ python -m venv cpt-env
 $ ./cpt-env/Scripts/activate
@@ -58,14 +57,11 @@ Install dependencies from the *requirements.txt*. You **MUST** be in the same fo
 ```sh
 $ pip install -r requirements.txt
 ```
-
 Create 2 files for user and contracts :
 ```sh
 $ touch users.json
 $ touch contracts.json
 ```
-
-## Setup env file
 Create a '.env' file in the project folder. And follow the current syntax need :
 ```sh
 CHROME_DRIVER_PATH=<chromedriver.exe path>
