@@ -4,7 +4,6 @@ import os
 import json
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -19,18 +18,32 @@ options.add_argument("--log-level=3")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-gpu")
 options.add_argument("--mute-audio")
-driver = webdriver.Chrome(chromeDriverPath, options=options)
+options.add_experimental_option('excludeSwitches', ['enable-logging'])
+#driver = webdriver.Chrome(chromeDriverPath, options=options)
 
 pref_list = {
-    "currency": ["eur", "usd"]
+    "currency": ["eur", "usd"],
+    "chart" : ["poocoin", "dexguru"]
 }
+
+#######################################################
+#                 Driver Management                   #
+#######################################################
+
+#create chrome driver istance
+def createDriver():
+    return webdriver.Chrome(chromeDriverPath, options=options)
+
+#kill chrome driver istance
+def killDriver(driver):
+    driver.quit()
 
 #######################################################
 #                   BSC Scraping                      #
 #######################################################
 
 # get token balance, specifying token contract adress and wallet adress
-def getTokenBalanceFromBSCscan(tokenAdress, walletAdress):
+def getTokenBalanceFromBSCscan(driver,  tokenAdress, walletAdress):
     try:
         driver.get("https://bscscan.com/token/" + tokenAdress + "?a=" + walletAdress)
         
@@ -47,7 +60,7 @@ def getTokenBalanceFromBSCscan(tokenAdress, walletAdress):
         return None
 
 # trade your_crypto for bnb simulation, than extract trade info
-def simulateTradeToBUSD(tokenAddress, amount):
+def simulateTradeToBUSD(driver, tokenAddress, amount):
     driver.get("https://exchange.pancakeswap.finance/#/swap")
     
     #insert HODL as starting crypto
@@ -100,18 +113,18 @@ def simulateTradeToBUSD(tokenAddress, amount):
 
     #extracting busd amount from transaction
     try:
-        outputBUSDAmount = WebDriverWait(driver, 5).until(
+        outputBUSDAmount = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, "//*[@id=\"root\"]/div[2]/div[1]/div/div[2]/div/div[3]/div[3]/div/div/div/div[1]/div[2]/div"))
         )
         return outputBUSDAmount.text.split(" ")[0]
     except Exception as e:
-        print("Couldnt print output balance.\n" + e)
+        print("Couldnt print output balance.\n")
+        print(e)
         return None
 
 
 # change from bnb to eur
-def BUSDtoEUR(amount):
-
+def BUSDtoEUR(driver, amount):
     # get eur to dollar value
     driver.get("https://www.xe.com/it/currencyconverter/convert/?Amount=1&From=USD&To=EUR")
     try:
@@ -122,10 +135,20 @@ def BUSDtoEUR(amount):
         # print(" ➜   USD to EUR rate : " + EURtoUSD)
     except Exception as e:
         print("Couldnt get EUR to USD value")
+        killDriver(driver)
         return None
 
     myBNBvalueInEUR = float(amount) * float(EURtoUSD)
     return myBNBvalueInEUR
+
+
+# get poocoin chart link of specific token
+def getPoocoinChart(tokenAddress):
+    return "https://poocoin.app/tokens/" + tokenAddress
+
+# get dex.guru chart link of specific token
+def getDexguruChart(tokenAddress):
+    return "https://dex.guru/token/" + tokenAddress + "-bsc"
 
 #######################################################
 #                   JSON utility                      #
@@ -253,12 +276,14 @@ def addInvestmentToJson(owner, crypto, amount):
 
 # default preferences:
 #      currency: eur
+#      chart: poocoin
 def regUser(owner, address):
     j = {
         owner: {
             "address": address,
             "preferences": {
-                "currency": "eur"
+                "currency": "eur",
+                "chart" : "poocoin"
             }
         }
     }
