@@ -1,14 +1,18 @@
+import threading
 import telebot
 import os
 from dotenv import load_dotenv
-import json
 import util
+
+from selenium import webdriver
 
 load_dotenv()
 
 # release API_KEY
 # debug API_KEY_DEV
 bot = telebot.TeleBot(os.getenv("API_KEY_DEV"), parse_mode="HTML")
+
+print("Starting bot ...")
 
 @bot.message_handler(commands=['start'])
 def start(message):
@@ -47,49 +51,90 @@ def help(message):
 
 @bot.message_handler(commands=['reg'])
 def reg(message):
-    owner = message.from_user.full_name
+    user = message.from_user.full_name
+    
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()))
 
-    if (util.checkIfUserExists(owner) == True):
-        bot.reply_to(message, "⚠️ User <b>" + message.from_user.full_name + "</b> alredy exists. Contact admin.")
-        exit()
+    #check number of arguments
+    if len(message.text.split(" ")) > 1:
+        bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
+        return
+    
+    address = message.text.split(" ")[1]
+    
+    #check wallet format validity
+    if address[:2] != "0x":
+        bot.send_message(message.chat.id ,"⚠️ Invalid wallet address format")
+        return
 
-    util.regUser(owner, message.text.split(" ")[1])
+    util.regUser(user, address)
 
-    bot.send_message(message.chat.id, "✅ Registered : <b>" + message.from_user.full_name + "</b>")
+    bot.send_message(message.chat.id, "✅ Registered : <b>" + user + "</b>")
 
 ############################################################################
 
 @bot.message_handler(commands=['addcontract'])
 def addc(message):
+    user = message.from_user.full_name
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()))
+    #check number of arguments
+    if len(message.text.split(" ")) > 3:
+        bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
+        return
+
     crypto_name = message.text.split(" ")[1].upper()
     crypto_contract = message.text.split(" ")[2]
+
+    #check wallet format validity
+    if crypto_contract[:2] != "0x":
+        bot.send_message(message.chat.id ,"⚠️ Invalid wallet address format")
+        return
+
     try:
         util.addContractToJson(crypto_name, crypto_contract)
         bot.send_message(message.chat.id, "✅ Added <b>" + crypto_name + "</b> @" + crypto_contract)
     except Exception as e:
         print(e)
-        bot.send_message(message.chat.id, "‼️ Failed to add contract")
+        bot.send_message(message.chat.id, "⚠️ Something went wrong")
 
 ############################################################################
 
 
 @bot.message_handler(commands=['add'])
 def add(message):
-    owner = message.from_user.full_name
+    user = message.from_user.full_name
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()))
+
+    #check number of arguments
+    if len(message.text.split(" ")) > 3:
+        bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
+        return
+
+    
     crypto_name = message.text.split(" ")[1].upper()
-    investment = message.text.split(" ")[2]
+    investment = 0 
+
+    #checks if investment value is a valid float 
+    try:
+        investment = float(message.text.split(" ")[2])
+    except:
+        bot.send_message(message.chat.id ,"⚠️ Invalid investment value")
+        return
 
     try:
-        util.addInvestmentToJson(owner, crypto_name, investment)
+        util.addInvestmentToJson(user, crypto_name, investment)
     except:
         bot.send_message(message.chat.id, "⚠️ Failed to add investment")
 
-    bot.send_message(message.chat.id, "✅ Added investment of <b>" + investment + "</b> on <b>" + crypto_name.upper() + "</b> for <b>" + message.from_user.full_name + "</b>")
+    bot.send_message(message.chat.id, "✅ Added investment of <b>" + str(investment) + "</b> on <b>" + crypto_name.upper() + "</b> for <b>" + message.from_user.full_name + "</b>")
 
 ############################################################################
 
 @bot.message_handler(commands=['pref'])
 def pref(message):
+    user = message.from_user.full_name
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()))
+
     split = message.text.split(" ")
 
     # check number of arguments
@@ -122,30 +167,51 @@ def pref(message):
 @bot.message_handler(regexp="\/")
 def crypto_fetch(message):
 
+    user = message.from_user.full_name
+    
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()))
+    
+    #check number of arguments
+    if len(message.text.split(" ")) > 1:
+        bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
+        return
+    
+    crpyto_name = message.text[1:].upper()
+
     # check in json if investement for this crypto and user exists
-    investment = util.getInvestmentOfFromJson(message.from_user.full_name, message.text[1:].upper()) 
+    investment = util.getInvestmentOfFromJson(user, crpyto_name) 
     if (investment == None):
-        bot.reply_to(message, "your poor ass doesn't have this crypto")
+        bot.reply_to(message, "⚠️ Your poor ass doesn't have this crypto")
+        return
+
+    #create driver instance for this request
+    driver = webdriver.Chrome(util.chromeDriverPath, options=util.options)
 
     bot.send_message(message.chat.id, "⏳ Gimme ~5 seconds ...\n<i>Don't send other commands pls</i>")
 
-    crypto_address = util.getCryptoAddressFromJson(message.text[1:].upper())
-    owner_address = util.getOwnerAddressFromJson(message.from_user.full_name)
+    crypto_address = util.getCryptoAddressFromJson(crpyto_name)
+    owner_address = util.getOwnerAddressFromJson(user)
 
-    bsc_scan = util.getTokenBalanceFromBSCscan(crypto_address, owner_address)
+    bsc_scan = util.getTokenBalanceFromBSCscan(driver, crypto_address, owner_address)
     
     if(bsc_scan == None):
         bot.reply_to(message, "Error in getTokenBalanceFromBSCscan")
         return
 
-    balance = util.simulateTradeToBUSD(crypto_address, bsc_scan['balance'])
+    chartLink = ""
+    if util.getPreference(user, "chart") == "poocoin":
+        chartLink = util.getPoocoinChart(crypto_address)
+    elif util.getPreference(user, "chart") == "dexguru":
+        chartLink = util.getDexguruChart(crypto_address)
+
+    balance = util.simulateTradeToBUSD(driver, crypto_address, bsc_scan['balance'])
     if(balance == None):
         bot.reply_to(message, "Error in simulateTradeToBUSD")
         return
 
     symbol = "$"
-    if util.getPreference(message.from_user.full_name, "currency") == "eur":
-        balance = util.BUSDtoEUR(balance)
+    if util.getPreference(user, "currency") == "eur":
+        balance = util.BUSDtoEUR(driver, balance)
         symbol = "€"
 
     if balance is None:
@@ -158,9 +224,14 @@ def crypto_fetch(message):
         color = "🟢"
 
     bot.send_message(message.chat.id,
-        "<b>" + message.from_user.full_name + "</b> your profit on <b>" +
+        "<b>" + user + "</b> your profit on <b>" +
         message.text[1:].upper() + "</b> is : \n" +
-        color + "    <b>" + symbol + " {:.2f}".format(float(profit)) + "</b>")
+        color + "    <b>" + symbol + " {:.2f}".format(float(profit)) + "</b>\n" +
+        "🛒 Amount : " + " {:.3f}".format(float(bsc_scan['balance'].replace(",",""))) + 
+        "\n🔗 <a href=\"" + chartLink + "\"> Chart </a> " 
+        , disable_web_page_preview = True)
+
+    driver.quit()
 
 
 ############################################################################
