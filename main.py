@@ -45,6 +45,9 @@ def help(message):
      "<i>ex : /pref currency usd</i>\n" +
      "<i>available preferences: " + ", ".join(util.pref_list) + "</i>\n" +
      "<i>Set a profile preference</i>\n\n"
+
+     "📋️\n<b>/[portfolio]</b>\n" +
+     "<i>List status of all the user's crypto</i>\n\n"
     )
 
 ############################################################################
@@ -130,6 +133,89 @@ def add(message):
 
 ############################################################################
 
+@bot.message_handler(commands=['portfolio'])
+def reg(message):
+    user = message.from_user.full_name
+
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()))
+
+    # check number of arguments
+    if len(message.text.split(" ")) > 1:
+        bot.send_message(message.chat.id, "⚠️ Invalid number of arguments")
+        return
+
+    # check if user exists
+    if not util.checkIfUserExists(user):
+        bot.send_message(message.chat.id, "⚠️ User does not exists, please register first")
+        return
+
+    # get list of investments for user
+    crypto_list = util.getAllCryptoForUser(user)
+
+    result_dict = {}
+
+    # create driver instance for this request
+    driver = webdriver.Chrome(util.chromeDriverPath, options=util.options)
+
+    time = 5 * len(crypto_list)
+    bot.send_message(message.chat.id, "⏳ Gimme ~" + str(time) +" seconds ...")
+
+    owner_address = util.getOwnerAddressFromJson(user)
+
+    for item in crypto_list:
+
+        crypto_address = util.getCryptoAddressFromJson(item)
+        bsc_scan = util.getTokenBalanceFromBSCscan(driver, crypto_address, owner_address)
+
+        investment = util.getInvestmentOfFromJson(user, item)
+
+        error = False
+
+        if bsc_scan is None:
+            error = True
+
+        if not error:
+            balance = util.simulateTradeToBUSD(driver, crypto_address, bsc_scan['balance'])
+
+        if balance is None:
+            error = True
+
+        if not error:
+            symbol = "$"
+            if util.getPreference(user, "currency") == "eur":
+                balance = util.BUSDtoEUR(driver, balance)
+                symbol = "€"
+
+        if balance is None:
+            error = True
+
+        if not error:
+            profit = float(balance) - float(investment)
+            color = "🔴"
+            if profit > 0.0:
+                color = "🟢"
+
+            result_dict[item] = color + "<b>" + symbol + " {:.2f}".format(float(profit)) + "</b>"
+                     # "🛒 Amount : " + " {:.3f}".format(float(bsc_scan['balance'].replace(",", "")))
+        else:
+            result_dict[item] = item + ": <i>Error</i>"
+
+    driver.quit()
+
+    string_result = "📋 <b>" + user + "</b>'s Portfolio:\n"
+
+    # if i have cryptos to display
+    if result_dict:
+        for key, val in result_dict.items():
+            string_result += "\n " + str(key) + ":" + "   " + val
+    else:
+        string_result += "\nPortfolio is empty, stay poor"
+
+    bot.send_message(message.chat.id, string_result)
+
+
+############################################################################
+
 @bot.message_handler(commands=['pref'])
 def pref(message):
     user = message.from_user.full_name
@@ -187,7 +273,7 @@ def crypto_fetch(message):
     #create driver instance for this request
     driver = webdriver.Chrome(util.chromeDriverPath, options=util.options)
 
-    bot.send_message(message.chat.id, "⏳ Gimme ~5 seconds ...\n<i>Don't send other commands pls</i>")
+    bot.send_message(message.chat.id, "⏳ Gimme ~5 seconds ...")
 
     crypto_address = util.getCryptoAddressFromJson(crpyto_name)
     owner_address = util.getOwnerAddressFromJson(user)
