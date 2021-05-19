@@ -23,7 +23,7 @@ options.add_experimental_option('excludeSwitches', ['enable-logging'])
 
 pref_list = {
     "currency": ["eur", "usd"],
-    "chart" : ["poocoin", "dexguru"]
+    "chart": ["poocoin", "dexguru"]
 }
 
 #######################################################
@@ -153,22 +153,35 @@ def getDexguruChart(tokenAddress):
 #######################################################
 #                   JSON utility                      #
 #######################################################
+
 def getInvestmentOfFromJson(owner, crypto):
     with open("users.json") as f:        
         data = json.load(f)
         try:
-           return data[owner][crypto]
+           return data[owner]["crypto"][crypto]
         except:
             return None
+
 
 def checkIfUserExists(user):
     with open("users.json") as f:        
         data = json.load(f)
         try:
-            if(data[user]):
+            if data[user]:
                 return True
         except:
             return False
+
+
+def getAllCryptoForUser(user):
+    with open("users.json") as f:
+        data = json.load(f)
+        try:
+            if data[user]:
+                return list(data[user]["crypto"].keys())
+        except:
+            return False
+
 
 def getCryptoAddressFromJson(crypto):
     with open("contracts.json") as f:        
@@ -188,7 +201,7 @@ def getOwnerAddressFromJson(owner):
 
 def addContractToJson(crypto_name, crypto_address):
     json_contract = {
-        crypto_name.upper() : crypto_address
+        crypto_name.upper(): crypto_address
     }
 
     try:
@@ -268,7 +281,7 @@ def addInvestmentToJson(owner, crypto, amount):
 
     with open("users.json") as f:        
         data = json.load(f)  
-        data[owner].update(json_contract)
+        data[owner]["crypto"].update(json_contract)
     
     with open("users.json", "w") as f: 
         json.dump(data, f, indent=4)
