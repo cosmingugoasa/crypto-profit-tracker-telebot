@@ -36,6 +36,10 @@ Gathers info via scraping on different sites and returns your profit (total valu
 *ex : /pref currency usd* <br>
 *Set a profile preference* <br><br>
 
+📋️
+**/[portfolio]**
+List status of all the user's crypto
+
 ### **/help**
 
 ![](/media/help.png)
