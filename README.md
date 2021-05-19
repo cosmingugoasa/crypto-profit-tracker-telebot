@@ -37,7 +37,7 @@ Gathers info via scraping on different sites and returns your profit (total valu
 *Set a profile preference* <br><br>
 
 📋️
-**/[portfolio]**
+**/[portfolio]** <br>
 List status of all the user's crypto
 
 ### **/help**
