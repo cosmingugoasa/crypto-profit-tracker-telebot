@@ -3,6 +3,7 @@ import telebot
 import os
 from dotenv import load_dotenv
 import util
+from datetime import datetime
 
 from selenium import webdriver
 
@@ -56,7 +57,7 @@ def help(message):
 def reg(message):
     user = message.from_user.full_name
     
-    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()))
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
     #check number of arguments
     if len(message.text.split(" ")) > 1:
@@ -79,7 +80,7 @@ def reg(message):
 @bot.message_handler(commands=['addcontract'])
 def addc(message):
     user = message.from_user.full_name
-    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()))
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
     #check number of arguments
     if len(message.text.split(" ")) > 3:
         bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
@@ -106,7 +107,7 @@ def addc(message):
 @bot.message_handler(commands=['add'])
 def add(message):
     user = message.from_user.full_name
-    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()))
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
     #check number of arguments
     if len(message.text.split(" ")) > 3:
@@ -137,7 +138,7 @@ def add(message):
 def reg(message):
     user = message.from_user.full_name
 
-    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()))
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
     # check number of arguments
     if len(message.text.split(" ")) > 1:
@@ -219,7 +220,7 @@ def reg(message):
 @bot.message_handler(commands=['pref'])
 def pref(message):
     user = message.from_user.full_name
-    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()))
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
     split = message.text.split(" ")
 
@@ -255,7 +256,7 @@ def crypto_fetch(message):
 
     user = message.from_user.full_name
     
-    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()))
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
     
     #check number of arguments
     if len(message.text.split(" ")) > 1:
