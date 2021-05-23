@@ -79,7 +79,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
             EC.presence_of_element_located((By.XPATH, "//*[@id=\"token-search-input\"]"))
         )
         fromWhatCryptoInput.send_keys(tokenAddress)
-        sleep(1)
+        sleep(1.15)
         fromWhatCryptoInput.send_keys(Keys.RETURN)
     except Exception as e:
         print("Error inserting token adress")
@@ -91,10 +91,10 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
             EC.presence_of_element_located((By.XPATH, "//*[@id=\"swap-currency-input\"]/div/div[2]/input"))
         )
         amountCryptoInput.click()
-        sleep(1)
+        sleep(1.15)
         amountCryptoInput.send_keys(amount.replace(",",""))
     except:
-        print("Error inserting hodl amount")
+        print("Error inserting amount")
         return None
 
     #select busd as output
@@ -106,7 +106,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
         bnbSelectInput = driver.find_element_by_xpath("//*[@id=\"token-search-input\"]")
         bnbSelectInput.send_keys("BUSD")
         bnbSelectInput.send_keys(Keys.ENTER)
-        sleep(1)
+        sleep(1.15)
     except Exception as e:
         print("Couldnt select busd as output")
         return None
