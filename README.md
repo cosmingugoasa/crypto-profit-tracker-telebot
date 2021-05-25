@@ -21,6 +21,11 @@ Gathers info via scraping on different sites and returns your profit (total valu
 *ex : /add feg 25* <br>
 *Add an investment you made (BSC only for now)* <br><br>
 
+🗑
+**/rm** [token/coin name] <br>
+*ex : /rm feg* <br>
+*Remove an investment you made (BSC only for now)* <br><br>
+
 📈
 **/addcontract** [token/coin name] [contract address] <br> 
 *ex : /addcontract reth 0x00000000* <br>
