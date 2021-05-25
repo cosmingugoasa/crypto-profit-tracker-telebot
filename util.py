@@ -287,6 +287,16 @@ def addInvestmentToJson(owner, crypto, amount):
         json.dump(data, f, indent=4)
 
 
+def rmInvestmentFromJson(owner, crypto):
+
+    with open("users.json") as f:        
+        data = json.load(f)  
+        del data[owner]["crypto"][crypto]
+    
+    with open("users.json", "w") as f: 
+        json.dump(data, f, indent=4)
+
+
 # default preferences:
 #      currency: eur
 #      chart: poocoin
