@@ -34,6 +34,10 @@ def help(message):
     "<i>ex : /add feg 25</i>\n" +
     "<i>Add an investment you made (BSC only for now)</i>\n\n" +
 
+    "🗑\n<b>/rm</b> [token/coin name]\n" + 
+    "<i>ex : /rm feg</i>\n" +
+    "<i>Remove an investment you made (BSC only for now)</i>\n\n" +
+
     "📈\n<b>/addcontract</b> [token/coin name] [contract address]\n" + 
     "<i>ex : /addcontract reth 0x00000000</i>\n" +
     "<i>Add a contract to contract list (BSC only for now)</i>\n\n" +
@@ -131,6 +135,31 @@ def add(message):
         bot.send_message(message.chat.id, "⚠️ Failed to add investment")
 
     bot.send_message(message.chat.id, "✅ Added investment of <b>" + str(investment) + "</b> on <b>" + crypto_name.upper() + "</b> for <b>" + message.from_user.full_name + "</b>")
+
+############################################################################
+
+@bot.message_handler(commands=['rm'])
+def rm(message):
+    user = message.from_user.full_name
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+
+    #check number of arguments
+    if len(message.text.split(" ")) > 2:
+        bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
+        return
+
+    
+    crypto_name = message.text.split(" ")[1].upper()
+
+    # check in json if investement for this crypto and user exists
+    investment = util.getInvestmentOfFromJson(user, crypto_name) 
+    if (investment == None):
+        bot.send_message(message.chat.id, "⚠️ Your poor ass doesn't have this crypto")
+        return
+
+    util.rmInvestmentFromJson(user, crypto_name)
+
+    bot.send_message(message.chat.id, "✅ Removed investment on <b>" + crypto_name.upper() + "</b> for <b>" + message.from_user.full_name + "</b>")
 
 ############################################################################
 
