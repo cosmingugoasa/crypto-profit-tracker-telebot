@@ -45,9 +45,6 @@ Gathers info via scraping on different sites and returns your profit (total valu
 **/[portfolio]** <br>
 List status of all the user's crypto
 
-### **/help**
-
-![](/media/help.png)
 
 ### **/...**
  
