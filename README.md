@@ -1,4 +1,4 @@
-# Crypto Profit Telegram Bot v1.2
+# Crypto Profit Tracker Telegram Bot v1.2
 
 ## W.I.P.
 Currently under development. Working on :
