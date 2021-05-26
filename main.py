@@ -11,7 +11,7 @@ load_dotenv()
 
 # release API_KEY
 # debug API_KEY_DEV
-bot = telebot.TeleBot(os.getenv("API_KEY_DEV"), parse_mode="HTML")
+bot = telebot.TeleBot(os.getenv("API_KEY"), parse_mode="HTML")
 
 print("Starting bot ...")
 
@@ -46,12 +46,12 @@ def help(message):
     "<i>ex : /feg</i>\n" +
     "<i>Check your profit on that crypto</i>\n\n" +
 
-     "⚙️\n<b>/[pref]</b> [preference] [value]\n" +
+     "⚙️\n<b>/pref</b> [preference] [value]\n" +
      "<i>ex : /pref currency usd</i>\n" +
      "<i>available preferences: " + ", ".join(util.pref_list) + "</i>\n" +
      "<i>Set a profile preference</i>\n\n"
 
-     "📋️\n<b>/[portfolio]</b>\n" +
+     "📋️\n<b>/portfolio</b>\n" +
      "<i>List status of all the user's crypto</i>\n\n"
     )
 
@@ -144,7 +144,7 @@ def rm(message):
     print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
     #check number of arguments
-    if len(message.text.split(" ")) > 2:
+    if len(message.text.split(" ")) > 2 or len(message.text.split(" ")) < 2 :
         bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
         return
 
