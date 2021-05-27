@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
 load_dotenv()
-chromeDriverPath = os.getenv("CHROME_DRIVER_PATH")
+chromeDriverPath = os.getenv("DRIVER_PATH")
 
 options = Options()
 options.add_argument("--headless")
