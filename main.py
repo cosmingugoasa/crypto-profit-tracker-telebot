@@ -11,7 +11,8 @@ load_dotenv()
 
 # release API_KEY
 # debug API_KEY_DEV
-bot = telebot.TeleBot(os.getenv("API_KEY"), parse_mode="HTML")
+#bot = telebot.TeleBot(os.getenv("API_KEY"), parse_mode="HTML")
+bot = telebot.TeleBot(os.environ.get("API_KEY"), parse_mode="HTML")
 
 print("Starting bot ...")
 
