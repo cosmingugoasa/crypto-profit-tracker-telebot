@@ -280,7 +280,11 @@ def addInvestmentToJson(owner, crypto, amount):
     }
 
     with open("users.json") as f:        
-        data = json.load(f)  
+        data = json.load(f)
+
+        if data[owner]["crypto"][crypto] :
+            json_contract[crypto] += data[owner]["crypto"][crypto]
+
         data[owner]["crypto"].update(json_contract)
     
     with open("users.json", "w") as f: 

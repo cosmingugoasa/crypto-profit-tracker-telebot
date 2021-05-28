@@ -64,7 +64,7 @@ def reg(message):
     print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
     #check number of arguments
-    if len(message.text.split(" ")) > 1:
+    if len(message.text.split(" ")) > 2:
         bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
         return
     
