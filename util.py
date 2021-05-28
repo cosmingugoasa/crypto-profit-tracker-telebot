@@ -132,14 +132,16 @@ def BUSDtoEUR(driver, amount):
             EC.presence_of_element_located((By.XPATH, "//*[@id=\"__next\"]/div[2]/div[2]/section/div[2]/div/main/form/div[2]/div[1]/p[2]"))
         )
         EURtoUSD = EURtoUSD.text.split(" ")[0].replace(',','.')
-        # print(" ➜   USD to EUR rate : " + EURtoUSD)
+        
+        myBNBvalueInEUR = float(amount) * float(EURtoUSD)
+        return myBNBvalueInEUR
+        
     except Exception as e:
         print("Couldnt get EUR to USD value")
         killDriver(driver)
         return None
 
-    myBNBvalueInEUR = float(amount) * float(EURtoUSD)
-    return myBNBvalueInEUR
+    
 
 
 # get poocoin chart link of specific token
@@ -279,16 +281,27 @@ def addInvestmentToJson(owner, crypto, amount):
         crypto: float(amount)
     }
 
+    try:
+        with open("users.json") as f:        
+            data = json.load(f)
+
+            try:
+                if data[owner]["crypto"][crypto] :
+                    json_contract[crypto] += data[owner]["crypto"][crypto]
+                    data[owner]["crypto"].update(json_contract)
+            except:
+                data[owner]["crypto"].update(json_contract)
+        
+        with open("users.json", "w") as f: 
+            json.dump(data, f, indent=4)
+    except Exception as e:
+        print(e)
+
+
+def showInvestments(owner):
     with open("users.json") as f:        
         data = json.load(f)
-
-        if data[owner]["crypto"][crypto] :
-            json_contract[crypto] += data[owner]["crypto"][crypto]
-
-        data[owner]["crypto"].update(json_contract)
-    
-    with open("users.json", "w") as f: 
-        json.dump(data, f, indent=4)
+        return data[owner]["crypto"]
 
 
 def rmInvestmentFromJson(owner, crypto):
