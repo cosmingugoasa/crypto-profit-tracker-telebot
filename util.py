@@ -25,7 +25,8 @@ sleep_time = 1.75
 
 pref_list = {
     "currency": ["eur", "usd"],
-    "chart": ["poocoin", "dexguru", "bogged"]
+    "chart": ["poocoin", "dexguru", "bogged"],
+    "ath": ["true", "false"]
 }
 
 #######################################################
@@ -300,7 +301,7 @@ def addInvestmentToJson(owner, crypto, amount):
                 new_json = {
                     crypto: {
                         "investment": amount,
-                        "ath" : 0
+                        "ath": 0
                     }
                 }
                 data[owner]["crypto"].update(new_json)
@@ -336,7 +337,8 @@ def regUser(owner, address):
             "address": address,
             "preferences": {
                 "currency": "eur",
-                "chart" : "poocoin"
+                "chart": "poocoin",
+                "ath": True
             }
         }
     }

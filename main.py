@@ -117,16 +117,15 @@ def add(message):
     user = message.from_user.full_name
     print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
-    #check number of arguments
+    # check number of arguments
     if len(message.text.split(" ")) != 3:
-        bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
+        bot.send_message(message.chat.id, "⚠️ Invalid number of arguments")
         return
-
 
     crypto_name = message.text.split(" ")[1].upper()
     investment = 0 
 
-    #checks if investment value is a valid float 
+    # checks if investment value is a valid float
     try:
         investment = float(message.text.split(" ")[2])
     except:
@@ -150,7 +149,7 @@ def showinv(message):
     
     print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
     
-    #check number of arguments
+    # check number of arguments
     if len(message.text.split(" ")) != 1:
         bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
         return
@@ -179,7 +178,7 @@ def rm(message):
     user = message.from_user.full_name
     print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
-    #check number of arguments
+    # check number of arguments
     if len(message.text.split(" ")) > 2 or len(message.text.split(" ")) < 2 :
         bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
         return
@@ -256,15 +255,30 @@ def reg(message):
             error = True
 
         if not error:
+
             profit = float(balance) - float(investment)
+
+            # check personal ath
+            personal_ath = float(util.getPersonalAth(user, item))
+            if profit > personal_ath or personal_ath == 0:
+                personal_ath = "Now"
+                util.setPersonalAth(user, item, float("{:.2f}".format(float(profit))))
+            else:
+                personal_ath = "{:.2f}".format(float(profit))
+
             color = "🔴"
             if profit > 0.0:
                 color = "🟢"
 
-            result_dict[item] = color + "<b>" + symbol + " {:.2f}".format(float(profit)) + "</b> - ATH : " + " {:.2f}".format(float(util.getPersonalAth(user, item)))
+            string = color + "<b>" + symbol + " {:.2f}".format(float(profit)) + "</b>"
+
+            if util.getPreference(user, "ath") == "true":
+                string += " - ATH : " + personal_ath
+
+            result_dict[item] = string
                      # "🛒 Amount : " + " {:.3f}".format(float(bsc_scan['balance'].replace(",", "")))
         else:
-            result_dict[item] = item + ": <i>Error</i>"
+            result_dict[item] = "<i>Error</i>"
 
     driver.quit()
 
@@ -336,7 +350,7 @@ def crypto_fetch(message):
         bot.reply_to(message, "⚠️ Your poor ass doesn't have this crypto")
         return
 
-    #create driver instance for this request
+    # create driver instance for this request
     driver = webdriver.Chrome(util.chromeDriverPath, options=util.options)
 
     bot.send_message(message.chat.id, "⏳ Gimme ~5 seconds ...")
@@ -359,7 +373,7 @@ def crypto_fetch(message):
         chartLink = util.getBoggedChart(crypto_address)
 
     balance = util.simulateTradeToBUSD(driver, crypto_address, bsc_scan['balance'])
-    if(balance == None):
+    if balance is None:
         bot.reply_to(message, "Error in simulateTradeToBUSD")
         return
 
@@ -374,11 +388,11 @@ def crypto_fetch(message):
 
     profit = float(balance) - float(investment)
 
-    #check personal ath
+    # check personal ath
     personal_ath = float(util.getPersonalAth(user, crpyto_name))
     if profit > personal_ath or personal_ath == 0:
         personal_ath = "Now"
-        util.setPersonalAth(user, crpyto_name, profit)        
+        util.setPersonalAth(user, crpyto_name, float("{:.2f}".format(float(profit))))
     else:
         personal_ath = "{:.2f}".format(float(profit))
 
@@ -386,14 +400,18 @@ def crypto_fetch(message):
     if profit > 0.0:
         color = "🟢"
 
-    bot.send_message(message.chat.id,
-        "<b>" + user + "</b> your profit on <b>" +
-        message.text[1:].upper() + "</b> is : \n" +
-        color + "    <b>" + symbol + " {:.2f}".format(float(profit)) + "</b>\n" +
-        "🔝 ATH : " + personal_ath + "\n" + 
-        "🛒 Amount : " + " {:.3f}".format(float(bsc_scan['balance'].replace(",",""))) + 
-        "\n🔗 <a href=\"" + chartLink + "\"> Chart </a> " 
-        , disable_web_page_preview = True)
+    string = "<b>" + user + "</b> your profit on <b>" + \
+        message.text[1:].upper() + "</b> is : \n" + \
+        color + "    <b>" + symbol + " {:.2f}".format(float(profit)) + "</b>\n"
+
+
+    if util.getPreference(user, "ath") == "true":
+        string += "🔝 ATH : " + personal_ath + "\n"
+
+    string += "🛒 Amount : " + " {:.3f}".format(float(bsc_scan['balance'].replace(",",""))) + \
+        "\n🔗 <a href=\"" + chartLink + "\"> Chart </a> "
+
+    bot.send_message(message.chat.id, string, disable_web_page_preview = True)
 
     driver.quit()
 
