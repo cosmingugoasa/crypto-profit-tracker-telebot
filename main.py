@@ -34,6 +34,10 @@ def help(message):
     "<i>ex : /add feg 25</i>\n" +
     "<i>Add an investment you made (BSC only for now)</i>\n\n" +
 
+    "🔭\n<b>/showinv</b>\n" + 
+    "<i>ex : /showinv</i>\n" +
+    "<i>Show all the investments you made (BSC only for now)</i>\n\n" +
+
     "🗑\n<b>/rm</b> [token/coin name]\n" + 
     "<i>ex : /rm feg</i>\n" +
     "<i>Remove an investment you made (BSC only for now)</i>\n\n" +
@@ -64,7 +68,7 @@ def reg(message):
     print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
     #check number of arguments
-    if len(message.text.split(" ")) > 1:
+    if len(message.text.split(" ")) > 2:
         bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
         return
     
@@ -86,7 +90,7 @@ def addc(message):
     user = message.from_user.full_name
     print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
     #check number of arguments
-    if len(message.text.split(" ")) > 3:
+    if len(message.text.split(" ")) != 3:
         bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
         return
 
@@ -114,11 +118,11 @@ def add(message):
     print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
 
     #check number of arguments
-    if len(message.text.split(" ")) > 3:
+    if len(message.text.split(" ")) != 3:
         bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
         return
 
-    
+
     crypto_name = message.text.split(" ")[1].upper()
     investment = 0 
 
@@ -131,10 +135,42 @@ def add(message):
 
     try:
         util.addInvestmentToJson(user, crypto_name, investment)
+        bot.send_message(message.chat.id, "✅ Added investment of <b>" + str(investment) + "</b> on <b>" + crypto_name.upper() + "</b> for <b>" + message.from_user.full_name + "</b>")
     except:
         bot.send_message(message.chat.id, "⚠️ Failed to add investment")
 
-    bot.send_message(message.chat.id, "✅ Added investment of <b>" + str(investment) + "</b> on <b>" + crypto_name.upper() + "</b> for <b>" + message.from_user.full_name + "</b>")
+    
+
+############################################################################
+
+@bot.message_handler(commands=['showinv'])
+def showinv(message):
+
+    user = message.from_user.full_name
+    
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+    
+    #check number of arguments
+    if len(message.text.split(" ")) != 1:
+        bot.send_message(message.chat.id ,"⚠️ Invalid number of arguments")
+        return
+    
+    try:
+        if util.getPreference(user, "currency") == "eur":
+            symbol = "€"
+        else:
+            symbol = "$"
+
+        result = util.showInvestments(user)
+        str_result = "🔭 <b>" + user + "</b>'s Investments:\n"
+        for key in result:
+            str_result += key + " : " + str(result[key]["investment"]) + " " + symbol +"\n"
+
+        bot.send_message(message.chat.id , str_result)
+    except Exception as e:
+        bot.send_message(message.chat.id ,"⚠️ Something went wrong")
+        print(e)
+    
 
 ############################################################################
 
@@ -225,7 +261,7 @@ def reg(message):
             if profit > 0.0:
                 color = "🟢"
 
-            result_dict[item] = color + "<b>" + symbol + " {:.2f}".format(float(profit)) + "</b>"
+            result_dict[item] = color + "<b>" + symbol + " {:.2f}".format(float(profit)) + "</b> - ATH : " + " {:.2f}".format(float(util.getPersonalAth(user, item)))
                      # "🛒 Amount : " + " {:.3f}".format(float(bsc_scan['balance'].replace(",", "")))
         else:
             result_dict[item] = item + ": <i>Error</i>"
@@ -319,6 +355,8 @@ def crypto_fetch(message):
         chartLink = util.getPoocoinChart(crypto_address)
     elif util.getPreference(user, "chart") == "dexguru":
         chartLink = util.getDexguruChart(crypto_address)
+    elif util.getPreference(user, "chart") == "bogged":
+        chartLink = util.getBoggedChart(crypto_address)
 
     balance = util.simulateTradeToBUSD(driver, crypto_address, bsc_scan['balance'])
     if(balance == None):
@@ -335,6 +373,15 @@ def crypto_fetch(message):
         return
 
     profit = float(balance) - float(investment)
+
+    #check personal ath
+    personal_ath = float(util.getPersonalAth(user, crpyto_name))
+    if profit > personal_ath or personal_ath == 0:
+        personal_ath = "Now"
+        util.setPersonalAth(user, crpyto_name, profit)        
+    else:
+        personal_ath = "{:.2f}".format(float(profit))
+
     color = "🔴"
     if profit > 0.0:
         color = "🟢"
@@ -343,6 +390,7 @@ def crypto_fetch(message):
         "<b>" + user + "</b> your profit on <b>" +
         message.text[1:].upper() + "</b> is : \n" +
         color + "    <b>" + symbol + " {:.2f}".format(float(profit)) + "</b>\n" +
+        "🔝 ATH : " + personal_ath + "\n" + 
         "🛒 Amount : " + " {:.3f}".format(float(bsc_scan['balance'].replace(",",""))) + 
         "\n🔗 <a href=\"" + chartLink + "\"> Chart </a> " 
         , disable_web_page_preview = True)

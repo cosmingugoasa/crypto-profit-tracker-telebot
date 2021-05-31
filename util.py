@@ -10,7 +10,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
 load_dotenv()
-chromeDriverPath = os.getenv("CHROME_DRIVER_PATH")
+chromeDriverPath = os.getenv("DRIVER_PATH")
 
 options = Options()
 options.add_argument("--headless")
@@ -21,9 +21,11 @@ options.add_argument("--mute-audio")
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 #driver = webdriver.Chrome(chromeDriverPath, options=options)
 
+sleep_time = 1.75
+
 pref_list = {
     "currency": ["eur", "usd"],
-    "chart": ["poocoin", "dexguru"]
+    "chart": ["poocoin", "dexguru", "bogged"]
 }
 
 #######################################################
@@ -47,6 +49,7 @@ def getTokenBalanceFromBSCscan(driver,  tokenAdress, walletAdress):
     try:
         driver.get("https://bscscan.com/token/" + tokenAdress + "?a=" + walletAdress)
         
+        sleep(sleep_time)
         #extract balance and token name from page source code
         info = driver.find_element_by_id("ContentPlaceHolder1_divFilteredHolderBalance")
         balanceValue = "".join(info.text).split("\n")[1].split(" ")[0]
@@ -79,7 +82,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
             EC.presence_of_element_located((By.XPATH, "//*[@id=\"token-search-input\"]"))
         )
         fromWhatCryptoInput.send_keys(tokenAddress)
-        sleep(1.15)
+        sleep(sleep_time)
         fromWhatCryptoInput.send_keys(Keys.RETURN)
     except Exception as e:
         print("Error inserting token adress")
@@ -91,7 +94,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
             EC.presence_of_element_located((By.XPATH, "//*[@id=\"swap-currency-input\"]/div/div[2]/input"))
         )
         amountCryptoInput.click()
-        sleep(1.15)
+        sleep(sleep_time)
         amountCryptoInput.send_keys(amount.replace(",",""))
     except:
         print("Error inserting amount")
@@ -106,7 +109,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
         bnbSelectInput = driver.find_element_by_xpath("//*[@id=\"token-search-input\"]")
         bnbSelectInput.send_keys("BUSD")
         bnbSelectInput.send_keys(Keys.ENTER)
-        sleep(1.15)
+        sleep(sleep_time)
     except Exception as e:
         print("Couldnt select busd as output")
         return None
@@ -132,14 +135,16 @@ def BUSDtoEUR(driver, amount):
             EC.presence_of_element_located((By.XPATH, "//*[@id=\"__next\"]/div[2]/div[2]/section/div[2]/div/main/form/div[2]/div[1]/p[2]"))
         )
         EURtoUSD = EURtoUSD.text.split(" ")[0].replace(',','.')
-        # print(" ➜   USD to EUR rate : " + EURtoUSD)
+        
+        myBNBvalueInEUR = float(amount) * float(EURtoUSD)
+        return myBNBvalueInEUR
+        
     except Exception as e:
         print("Couldnt get EUR to USD value")
         killDriver(driver)
         return None
 
-    myBNBvalueInEUR = float(amount) * float(EURtoUSD)
-    return myBNBvalueInEUR
+    
 
 
 # get poocoin chart link of specific token
@@ -150,6 +155,10 @@ def getPoocoinChart(tokenAddress):
 def getDexguruChart(tokenAddress):
     return "https://dex.guru/token/" + tokenAddress + "-bsc"
 
+# get boggedfinance chart link of specific token
+def getBoggedChart(tokenAddress):
+    return "https://charts.bogged.finance/?token=" + tokenAddress
+
 #######################################################
 #                   JSON utility                      #
 #######################################################
@@ -158,7 +167,7 @@ def getInvestmentOfFromJson(owner, crypto):
     with open("users.json") as f:        
         data = json.load(f)
         try:
-           return data[owner]["crypto"][crypto]
+           return data[owner]["crypto"][crypto]["investment"]
         except:
             return None
 
@@ -276,15 +285,36 @@ def checkPrefValueExists(pref, value):
 
 def addInvestmentToJson(owner, crypto, amount):
     json_contract = {
-        crypto: float(amount)
+        "investment": float(amount)
     }
 
+    try:
+        with open("users.json") as f:        
+            data = json.load(f)
+
+            try:
+                if data[owner]["crypto"][crypto] :
+                    json_contract["investment"] += data[owner]["crypto"][crypto]["investment"]
+                    data[owner]["crypto"][crypto].update(json_contract)
+            except:
+                new_json = {
+                    crypto: {
+                        "investment": amount,
+                        "ath" : 0
+                    }
+                }
+                data[owner]["crypto"].update(new_json)
+        
+        with open("users.json", "w") as f: 
+            json.dump(data, f, indent=4)
+    except Exception as e:
+        print(e)
+
+
+def showInvestments(owner):
     with open("users.json") as f:        
-        data = json.load(f)  
-        data[owner]["crypto"].update(json_contract)
-    
-    with open("users.json", "w") as f: 
-        json.dump(data, f, indent=4)
+        data = json.load(f)
+        return data[owner]["crypto"]
 
 
 def rmInvestmentFromJson(owner, crypto):
@@ -316,6 +346,35 @@ def regUser(owner, address):
             data.update(j)
 
         with open("users.json", "w") as f:
+            json.dump(data, f, indent=4)
+    except Exception as e:
+        print(e)
+
+def getPersonalAth(owner, crypto):
+    try:
+        with open("users.json") as f:        
+            data = json.load(f)
+
+            return data[owner]["crypto"][crypto]["ath"]
+    except Exception as e:
+        print(e)
+        return None
+
+def setPersonalAth(owner, crypto, amount):
+    json_contract = {
+        "ath": float(amount)
+    }
+    
+    try:
+        with open("users.json") as f:        
+            data = json.load(f)
+
+            try:
+                data[owner]["crypto"][crypto].update(json_contract)
+            except Exception as e:
+                print(e)
+        
+        with open("users.json", "w") as f: 
             json.dump(data, f, indent=4)
     except Exception as e:
         print(e)
