@@ -380,3 +380,5 @@ def setPersonalAth(owner, crypto, amount):
             json.dump(data, f, indent=4)
     except Exception as e:
         print(e)
+
+        

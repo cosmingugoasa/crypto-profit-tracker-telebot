@@ -264,7 +264,7 @@ def reg(message):
                 personal_ath = "Now"
                 util.setPersonalAth(user, item, float("{:.2f}".format(float(profit))))
             else:
-                personal_ath = "{:.2f}".format(float(profit))
+                personal_ath = "{:.2f}".format(float(personal_ath))
 
             color = "🔴"
             if profit > 0.0:
@@ -394,7 +394,7 @@ def crypto_fetch(message):
         personal_ath = "Now"
         util.setPersonalAth(user, crpyto_name, float("{:.2f}".format(float(profit))))
     else:
-        personal_ath = "{:.2f}".format(float(profit))
+        personal_ath = "{:.2f}".format(float(personal_ath))
 
     color = "🔴"
     if profit > 0.0:
