@@ -21,6 +21,16 @@ Gathers info via scraping on different sites and returns your profit (total valu
 *ex : /add feg 25* <br>
 *Add an investment you made (BSC only for now)* <br><br>
 
+📌
+**/setq** [token/coin name] [quantity] <br>
+*ex : /setq feg 2500* <br>
+*Set quantity of coins to desired* <br><br>
+
+🔭
+**/showinv** <br>
+*ex : /showinv * <br>
+*Show all the investments you made (BSC only for now)* <br><br>
+
 🗑
 **/rm** [token/coin name] <br>
 *ex : /rm feg* <br>
