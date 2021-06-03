@@ -13,7 +13,7 @@ load_dotenv()
 chromeDriverPath = os.getenv("DRIVER_PATH")
 
 options = Options()
-options.add_argument("--headless")
+#options.add_argument("--headless")
 options.add_argument("--log-level=3")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-gpu")
@@ -79,14 +79,19 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
     
     #enter for confirming hodl adress
     try:
-        fromWhatCryptoInput = WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@id=\"token-search-input\"]"))
-        )
-        fromWhatCryptoInput.send_keys(tokenAddress)
-        sleep(sleep_time)
-        fromWhatCryptoInput.send_keys(Keys.RETURN)
+        #enter token address
+        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, "//*[@id=\"token-search-input\"]"))).send_keys(tokenAddress)        
+        #Click import
+        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//html/body/reach-portal/div[3]/div/div/div/div/div[3]/div/button[text()=\"Import\"]"))).click()
+        #Click checkbox
+        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "/html/body/reach-portal/div[3]/div/div/div/div/div[2]/div[3]/div/input"))).click()
+        #Confirm
+        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "/html/body/reach-portal/div[3]/div/div/div/div/div[2]/div[3]/button"))).click()
+        
+
     except Exception as e:
         print("Error inserting token adress")
+        print(e)
         return None
 
     #insert hodl amount
@@ -109,8 +114,9 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
         bnbSelectButton.click()
         bnbSelectInput = driver.find_element_by_xpath("//*[@id=\"token-search-input\"]")
         bnbSelectInput.send_keys("BUSD")
-        bnbSelectInput.send_keys(Keys.ENTER)
         sleep(sleep_time)
+        bnbSelectInput.send_keys(Keys.ENTER)
+        
     except Exception as e:
         print("Couldnt select busd as output")
         return None
@@ -118,7 +124,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
     #extracting busd amount from transaction
     try:
         outputBUSDAmount = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@id=\"root\"]/div[2]/div[1]/div/div[2]/div/div[3]/div[3]/div/div/div/div[1]/div[2]/div"))
+            EC.presence_of_element_located((By.XPATH, "//*[@id=\"root\"]/div/div/div[2]/div[3]/div[2]/div/div[1]/div[1]/div[2]/div"))
         )
         return outputBUSDAmount.text.split(" ")[0]
     except Exception as e:
