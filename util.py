@@ -25,7 +25,8 @@ sleep_time = 1.75
 
 pref_list = {
     "currency": ["eur", "usd"],
-    "chart": ["poocoin", "dexguru", "bogged"]
+    "chart": ["poocoin", "dexguru", "bogged"],
+    "ath": ["true", "false"]
 }
 
 #######################################################
@@ -78,14 +79,19 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
     
     #enter for confirming hodl adress
     try:
-        fromWhatCryptoInput = WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@id=\"token-search-input\"]"))
-        )
-        fromWhatCryptoInput.send_keys(tokenAddress)
-        sleep(sleep_time)
-        fromWhatCryptoInput.send_keys(Keys.RETURN)
+        #enter token address
+        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, "//*[@id=\"token-search-input\"]"))).send_keys(tokenAddress)        
+        #Click import
+        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//html/body/reach-portal/div[3]/div/div/div/div/div[3]/div/button[text()=\"Import\"]"))).click()
+        #Click checkbox
+        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "/html/body/reach-portal/div[3]/div/div/div/div/div[2]/div[3]/div/input"))).click()
+        #Confirm
+        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "/html/body/reach-portal/div[3]/div/div/div/div/div[2]/div[3]/button"))).click()
+        
+
     except Exception as e:
         print("Error inserting token adress")
+        print(e)
         return None
 
     #insert hodl amount
@@ -95,9 +101,11 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
         )
         amountCryptoInput.click()
         sleep(sleep_time)
-        amountCryptoInput.send_keys(amount.replace(",",""))
-    except:
+        
+        amountCryptoInput.send_keys(str(amount).replace(",", ""))
+    except Exception as e:
         print("Error inserting amount")
+        print(e)
         return None
 
     #select busd as output
@@ -108,8 +116,9 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
         bnbSelectButton.click()
         bnbSelectInput = driver.find_element_by_xpath("//*[@id=\"token-search-input\"]")
         bnbSelectInput.send_keys("BUSD")
-        bnbSelectInput.send_keys(Keys.ENTER)
         sleep(sleep_time)
+        bnbSelectInput.send_keys(Keys.ENTER)
+        
     except Exception as e:
         print("Couldnt select busd as output")
         return None
@@ -117,7 +126,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
     #extracting busd amount from transaction
     try:
         outputBUSDAmount = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@id=\"root\"]/div[2]/div[1]/div/div[2]/div/div[3]/div[3]/div/div/div/div[1]/div[2]/div"))
+            EC.presence_of_element_located((By.XPATH, "//*[@id=\"root\"]/div/div/div[2]/div[3]/div[2]/div/div[1]/div[1]/div[2]/div"))
         )
         return outputBUSDAmount.text.split(" ")[0]
     except Exception as e:
@@ -300,7 +309,7 @@ def addInvestmentToJson(owner, crypto, amount):
                 new_json = {
                     crypto: {
                         "investment": amount,
-                        "ath" : 0
+                        "ath": 0
                     }
                 }
                 data[owner]["crypto"].update(new_json)
@@ -336,7 +345,8 @@ def regUser(owner, address):
             "address": address,
             "preferences": {
                 "currency": "eur",
-                "chart" : "poocoin"
+                "chart": "poocoin",
+                "ath": True
             }
         }
     }
@@ -378,3 +388,43 @@ def setPersonalAth(owner, crypto, amount):
             json.dump(data, f, indent=4)
     except Exception as e:
         print(e)
+
+#set custom quantity for given crypto
+def setQ(owner, crypto, amount):
+    q = {
+        "quantity" : amount
+    }
+
+    try:
+        with open("users.json") as f:        
+            data = json.load(f)
+
+            try:
+                data[owner]["crypto"][crypto].update(q)
+            except Exception as e:
+                print(e)
+
+        with open("users.json", "w") as f: 
+                    json.dump(data, f, indent=4)
+    except Exception as e:
+        print(e)
+
+def getQ(owner, crypto):
+    with open("users.json") as f:        
+        data = json.load(f)
+        
+        try:
+            return data[owner]["crypto"][crypto]["quantity"]
+        except:
+            return None
+
+#check if user's crypto has custom quantity set
+def checkIfCustomQ(owner, crypto):
+    with open("users.json") as f:        
+        data = json.load(f)
+
+        try:
+            if(data[owner]["crypto"][crypto]["quantity"]):
+                return True
+        except:
+            return False
