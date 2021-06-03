@@ -34,6 +34,10 @@ def help(message):
     "<i>ex : /add feg 25</i>\n" +
     "<i>Add an investment you made (BSC only for now)</i>\n\n" +
 
+    "📌\n<b>/setq</b> [token/coin name] [quantity]\n" + 
+    "<i>ex : /setq baby 65</i>\n" +
+    "<i>Set quantity of BABY coins to desired</i>\n\n" +
+
     "🔭\n<b>/showinv</b>\n" + 
     "<i>ex : /showinv</i>\n" +
     "<i>Show all the investments you made (BSC only for now)</i>\n\n" +
@@ -330,6 +334,29 @@ def pref(message):
 
 ############################################################################
 
+@bot.message_handler(commands=['setq'])
+def setq(message):
+    user = message.from_user.full_name
+    print(message.text + " request from " + user + " on thread #" + str(threading.get_ident()) + " " + datetime.now().strftime("%d/%m/%Y %H:%M:%S"))
+
+    split = message.text.split(" ")
+
+    # check number of arguments
+    if len(split) != 3:
+        bot.send_message(message.chat.id, "⚠️ Invalid number of arguments")
+        return    
+
+    crypto = split[1].upper()
+    amount = float(split[2])
+
+    try:
+        util.setQ(user, crypto, amount)
+        bot.send_message(message.chat.id, "✅ Set Q for " + user)
+    except:
+        bot.send_message(message.chat.id, "⚠️ Error setting Q for " + user)
+
+############################################################################
+
 @bot.message_handler(regexp="\/")
 def crypto_fetch(message):
 
@@ -372,7 +399,13 @@ def crypto_fetch(message):
     elif util.getPreference(user, "chart") == "bogged":
         chartLink = util.getBoggedChart(crypto_address)
 
-    balance = util.simulateTradeToBUSD(driver, crypto_address, bsc_scan['balance'])
+    #check if custom Q
+    if(util.checkIfCustomQ(user, crpyto_name)):
+        token_amount = util.getQ(user, crpyto_name)
+    else:
+        token_amount = bsc_scan['balance']
+
+    balance = util.simulateTradeToBUSD(driver, crypto_address, token_amount)
     if balance is None:
         bot.reply_to(message, "Error in simulateTradeToBUSD")
         return
@@ -408,7 +441,7 @@ def crypto_fetch(message):
     if util.getPreference(user, "ath") == "true":
         string += "🔝 ATH : " + personal_ath + "\n"
 
-    string += "🛒 Amount : " + " {:.3f}".format(float(bsc_scan['balance'].replace(",",""))) + \
+    string += "🛒 Amount : " + " {:.3f}".format(float(token_amount)) + \
         "\n🔗 <a href=\"" + chartLink + "\"> Chart </a> "
 
     bot.send_message(message.chat.id, string, disable_web_page_preview = True)

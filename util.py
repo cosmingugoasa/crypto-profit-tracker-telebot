@@ -13,7 +13,7 @@ load_dotenv()
 chromeDriverPath = os.getenv("DRIVER_PATH")
 
 options = Options()
-#options.add_argument("--headless")
+options.add_argument("--headless")
 options.add_argument("--log-level=3")
 options.add_argument("--no-sandbox")
 options.add_argument("--disable-gpu")
@@ -101,9 +101,11 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
         )
         amountCryptoInput.click()
         sleep(sleep_time)
-        amountCryptoInput.send_keys(amount.replace(",",""))
-    except:
+        
+        amountCryptoInput.send_keys(str(amount).replace(",", ""))
+    except Exception as e:
         print("Error inserting amount")
+        print(e)
         return None
 
     #select busd as output
@@ -387,4 +389,42 @@ def setPersonalAth(owner, crypto, amount):
     except Exception as e:
         print(e)
 
+#set custom quantity for given crypto
+def setQ(owner, crypto, amount):
+    q = {
+        "quantity" : amount
+    }
+
+    try:
+        with open("users.json") as f:        
+            data = json.load(f)
+
+            try:
+                data[owner]["crypto"][crypto].update(q)
+            except Exception as e:
+                print(e)
+
+        with open("users.json", "w") as f: 
+                    json.dump(data, f, indent=4)
+    except Exception as e:
+        print(e)
+
+def getQ(owner, crypto):
+    with open("users.json") as f:        
+        data = json.load(f)
         
+        try:
+            return data[owner]["crypto"][crypto]["quantity"]
+        except:
+            return None
+
+#check if user's crypto has custom quantity set
+def checkIfCustomQ(owner, crypto):
+    with open("users.json") as f:        
+        data = json.load(f)
+
+        try:
+            if(data[owner]["crypto"][crypto]["quantity"]):
+                return True
+        except:
+            return False
