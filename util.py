@@ -75,6 +75,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
         fromButton.click()
     except Exception as e:
         print("Couldnt click 'From crypto button'")
+        killDriver(driver)
         return None
     
     #enter for confirming hodl adress
@@ -92,6 +93,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
     except Exception as e:
         print("Error inserting token adress")
         print(e)
+        killDriver(driver)
         return None
 
     #insert hodl amount
@@ -106,6 +108,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
     except Exception as e:
         print("Error inserting amount")
         print(e)
+        killDriver(driver)
         return None
 
     #select busd as output
@@ -121,6 +124,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
         
     except Exception as e:
         print("Couldnt select busd as output")
+        killDriver(driver)
         return None
 
     #extracting busd amount from transaction
@@ -132,6 +136,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
     except Exception as e:
         print("Couldnt print output balance.\n")
         print(e)
+        killDriver(driver)
         return None
 
 
@@ -347,7 +352,8 @@ def regUser(owner, address):
                 "currency": "eur",
                 "chart": "poocoin",
                 "ath": True
-            }
+            },
+            "crypto":{}
         }
     }
     try:
