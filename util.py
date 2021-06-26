@@ -74,7 +74,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
         )
         fromButton.click()
     except Exception as e:
-        print("Couldnt click 'From crypto button'")
+        print("Couldnt click 'From crypto button'. XPath my not be valid anymore.")
         killDriver(driver)
         return None
     
@@ -83,15 +83,15 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
         #enter token address
         WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, "//*[@id=\"token-search-input\"]"))).send_keys(tokenAddress)        
         #Click import
-        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//html/body/reach-portal/div[3]/div/div/div/div/div[3]/div/button[text()=\"Import\"]"))).click()
+        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div[1]/div[2]/div[2]/div[1]/div[2]/div/button[text()=\"Import\"]"))).click()
         #Click checkbox
-        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "/html/body/reach-portal/div[3]/div/div/div/div/div[2]/div[3]/div/input"))).click()
+        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div[1]/div[2]/div[2]/div/div[3]/div/input"))).click()
         #Confirm
-        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "/html/body/reach-portal/div[3]/div/div/div/div/div[2]/div[3]/button"))).click()
+        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div[1]/div[2]/div[2]/div/div[3]/button"))).click()
         
 
     except Exception as e:
-        print("Error inserting token adress")
+        print("Error inserting token adress. XPath my not be valid anymore.")
         print(e)
         killDriver(driver)
         return None
@@ -106,7 +106,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
         
         amountCryptoInput.send_keys(str(amount).replace(",", ""))
     except Exception as e:
-        print("Error inserting amount")
+        print("Error inserting amount. XPath my not be valid anymore.")
         print(e)
         killDriver(driver)
         return None
@@ -123,18 +123,18 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
         bnbSelectInput.send_keys(Keys.ENTER)
         
     except Exception as e:
-        print("Couldnt select busd as output")
+        print("Couldnt select busd as output. XPath my not be valid anymore.")
         killDriver(driver)
         return None
 
     #extracting busd amount from transaction
     try:
         outputBUSDAmount = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@id=\"root\"]/div/div/div[2]/div[3]/div[2]/div/div[1]/div[1]/div[2]/div"))
+            EC.presence_of_element_located((By.XPATH, "//*[@id=\"root\"]/div[1]/div/div[2]/div/div[2]/div/div[1]/div[1]/div[2]/div"))
         )
         return outputBUSDAmount.text.split(" ")[0]
     except Exception as e:
-        print("Couldnt print output balance.\n")
+        print("Couldnt print output balance. XPath my not be valid anymore.")
         print(e)
         killDriver(driver)
         return None
