@@ -238,6 +238,14 @@ def reg(message):
 
         investment = util.getInvestmentOfFromJson(user, item)
 
+        chartLink = ""
+        if util.getPreference(user, "chart") == "poocoin":
+            chartLink = util.getPoocoinChart(crypto_address)
+        elif util.getPreference(user, "chart") == "dexguru":
+            chartLink = util.getDexguruChart(crypto_address)
+        elif util.getPreference(user, "chart") == "bogged":
+            chartLink = util.getBoggedChart(crypto_address)
+
         error = False
 
         if bsc_scan is None:
@@ -278,6 +286,8 @@ def reg(message):
 
             if util.getPreference(user, "ath") == "true":
                 string += " - ATH : " + personal_ath
+            
+            string += " - 🔗 <a href=\"" + chartLink + "\"> Chart </a> "
 
             result_dict[item] = string
                      # "🛒 Amount : " + " {:.3f}".format(float(bsc_scan['balance'].replace(",", "")))
@@ -441,7 +451,7 @@ def crypto_fetch(message):
     if util.getPreference(user, "ath") == "true":
         string += "🔝 ATH : " + personal_ath + "\n"
 
-    string += "🛒 Amount : " + " {:.3f}".format(float(token_amount)) + \
+    string += "🛒 Amount : " + " {:.3f}".format(float(str(token_amount).replace(",",""))) + \
         "\n🔗 <a href=\"" + chartLink + "\"> Chart </a> "
 
     bot.send_message(message.chat.id, string, disable_web_page_preview = True)
