@@ -42,7 +42,7 @@ def killDriver(driver):
     driver.quit()
 
 #######################################################
-#                   BSC Scraping                      #
+#                     Scraping                        #
 #######################################################
 
 # get token balance, specifying token contract adress and wallet adress
@@ -96,7 +96,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
         killDriver(driver)
         return None
 
-    #insert hodl amount
+    #insert amount
     try:  
         amountCryptoInput = WebDriverWait(driver, 5).until(
             EC.presence_of_element_located((By.XPATH, "//*[@id=\"swap-currency-input\"]/div/div[2]/input"))
@@ -130,7 +130,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
     #extracting busd amount from transaction
     try:
         outputBUSDAmount = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@id=\"root\"]/div[1]/div/div[2]/div/div[2]/div/div[1]/div[1]/div[2]/div"))
+            EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div[1]/div[2]/div/div[1]/div[2]/div/div[1]/div[1]/div[2]/div"))
         )
         return outputBUSDAmount.text.split(" ")[0]
     except Exception as e:
@@ -172,6 +172,7 @@ def getDexguruChart(tokenAddress):
 # get boggedfinance chart link of specific token
 def getBoggedChart(tokenAddress):
     return "https://charts.bogged.finance/?token=" + tokenAddress
+
 
 #######################################################
 #                   JSON utility                      #
@@ -434,3 +435,19 @@ def checkIfCustomQ(owner, crypto):
                 return True
         except:
             return False
+
+def addToWatch(crypto, amount):
+    json_contract = {
+        crypto.upper(): amount
+    }
+
+    try:
+        with open("toWatch.json") as f:        
+            data = json.load(f)
+            data.update(json_contract)
+        
+        with open("toWatch.json", "w") as f:
+            json.dump(data, f, indent=4)
+    except:
+        print("Errore in addToWatch()")
+
