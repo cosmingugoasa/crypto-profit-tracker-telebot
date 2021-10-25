@@ -4,6 +4,7 @@
 Currently under development. Working on :
 - Reliability
 - More functionalities
+- XPaths fixes
 
 ## Description
 Telegram Bot used to check your profit on BSC based shitcoins. Keeps track of users/investments and coins/tokens via json files.
