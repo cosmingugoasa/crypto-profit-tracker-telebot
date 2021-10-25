@@ -15,6 +15,7 @@ bot = telebot.TeleBot(os.getenv("API_KEY"), parse_mode="HTML")
 
 print("Starting bot ...")
 
+
 @bot.message_handler(commands=['start'])
 def start(message):
 	bot.send_message(message.chat.id, "Hi " + message.from_user.full_name +"! I'm PTSL's Crypto Bot !")
@@ -115,7 +116,6 @@ def addc(message):
 
 ############################################################################
 
-
 @bot.message_handler(commands=['add'])
 def add(message):
     user = message.from_user.full_name
@@ -141,8 +141,6 @@ def add(message):
         bot.send_message(message.chat.id, "✅ Added investment of <b>" + str(investment) + "</b> on <b>" + crypto_name.upper() + "</b> for <b>" + message.from_user.full_name + "</b>")
     except:
         bot.send_message(message.chat.id, "⚠️ Failed to add investment")
-
-    
 
 ############################################################################
 
@@ -174,7 +172,6 @@ def showinv(message):
         bot.send_message(message.chat.id ,"⚠️ Something went wrong")
         print(e)
     
-
 ############################################################################
 
 @bot.message_handler(commands=['rm'])
@@ -429,7 +426,7 @@ def crypto_fetch(message):
         bot.reply_to(message, "BUSDtoEUR")
         return
 
-    profit = float(balance) - float(investment)
+    profit = float(balance) - float(investment) 
 
     # check personal ath
     personal_ath = float(util.getPersonalAth(user, crpyto_name))
@@ -457,7 +454,6 @@ def crypto_fetch(message):
     bot.send_message(message.chat.id, string, disable_web_page_preview = True)
 
     driver.quit()
-
 
 ############################################################################
 

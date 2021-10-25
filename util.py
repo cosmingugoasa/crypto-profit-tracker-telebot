@@ -69,7 +69,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
     
     #insert HODL as starting crypto
     try:
-        fromButton = WebDriverWait(driver, 5).until(
+        fromButton = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, "//*[@id=\"swap-currency-input\"]/div/div[2]/button"))
         )
         fromButton.click()
@@ -81,13 +81,13 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
     #enter for confirming hodl adress
     try:
         #enter token address
-        WebDriverWait(driver, 5).until(EC.presence_of_element_located((By.XPATH, "//*[@id=\"token-search-input\"]"))).send_keys(tokenAddress)        
+        WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, "//*[@id=\"token-search-input\"]"))).send_keys(tokenAddress)        
         #Click import
-        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div[1]/div[2]/div[2]/div[1]/div[2]/div/button[text()=\"Import\"]"))).click()
+        WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div[1]/div[2]/div[2]/div[1]/div[2]/div/button[text()=\"Import\"]"))).click()
         #Click checkbox
-        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div[1]/div[2]/div[2]/div/div[3]/div/input"))).click()
+        WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div[1]/div[2]/div[2]/div/div[3]/div/input"))).click()
         #Confirm
-        WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div[1]/div[2]/div[2]/div/div[3]/button"))).click()
+        WebDriverWait(driver, 15).until(EC.element_to_be_clickable((By.XPATH, "//*[@id=\"root\"]/div[1]/div[2]/div[2]/div/div[3]/button"))).click()
         
 
     except Exception as e:
@@ -98,8 +98,8 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
 
     #insert amount
     try:  
-        amountCryptoInput = WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@id=\"swap-currency-input\"]/div/div[2]/input"))
+        amountCryptoInput = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, "/html/body/div[1]/div[1]/div[2]/div/div[1]/div[1]/div/div[2]/div[1]/div[1]/div/div[2]/input"))
         )
         amountCryptoInput.click()
         sleep(sleep_time)
@@ -113,7 +113,7 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
 
     #select busd as output
     try:
-        bnbSelectButton = WebDriverWait(driver, 5).until(
+        bnbSelectButton = WebDriverWait(driver, 10).until(
             EC.presence_of_element_located((By.XPATH, "//*[@id=\"swap-currency-output\"]/div/div[2]/button"))
         )
         bnbSelectButton.click()
@@ -143,10 +143,10 @@ def simulateTradeToBUSD(driver, tokenAddress, amount):
 # change from bnb to eur
 def BUSDtoEUR(driver, amount):
     # get eur to dollar value
-    driver.get("https://www.xe.com/it/currencyconverter/convert/?Amount=1&From=USD&To=EUR")
+    driver.get("https://www.google.com/search?q=dollaro+euro&rlz=1C1GCEA_enIT930IT930&sxsrf=AOaemvIcNn-9GVM8EnkNqoUnBO-vyl9-cQ%3A1635168102413&ei=Zq92YdqeGKOFlQfuroW4Dw&ved=0ahUKEwja6ZDv0-XzAhWjQuUKHW5XAfcQ4dUDCA4&uact=5&oq=dollaro+euro&gs_lcp=Cgdnd3Mtd2l6EAMyCQgjECcQRhCCAjIFCAAQgAQyBQgAEMsBMgUIABCABDIFCAAQgAQyBQgAEIAEMgUIABCABDIFCAAQywEyBQgAEIAEMgUIABCABDoECCMQJzoLCAAQgAQQsQMQgwE6DgguEIAEELEDEMcBEKMCOgsILhCABBDHARCvAToECAAQQzoKCC4QxwEQowIQQzoKCAAQsQMQgwEQQzoICC4QgAQQsQM6CAgAEIAEELEDOgcIABCxAxBDOg4ILhCABBCxAxDHARCvAToOCC4QgAQQsQMQxwEQ0QM6BwgAEIAEEAo6DwgAEIAEEIcCEBQQRhCCAjoKCAAQgAQQhwIQFDoHCAAQsQMQCjoECAAQCkoECEEYAFD1DFiRMGDpMWgCcAJ4AIABqwGIAdgMkgEDNS45mAEAoAEBwAEB&sclient=gws-wiz")
     try:
-        EURtoUSD = WebDriverWait(driver, 5).until(
-            EC.presence_of_element_located((By.XPATH, "//*[@id=\"__next\"]/div[2]/div[2]/section/div[2]/div/main/form/div[2]/div[1]/p[2]"))
+        EURtoUSD = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.XPATH, "/html/body/div[8]/div/div[9]/div[1]/div/div[2]/div[2]/div/div/div[1]/div/div/div/div/div[1]/div/div[1]/div[1]/div[2]/span[1]"))
         )
         EURtoUSD = EURtoUSD.text.split(" ")[0].replace(',','.')
         
@@ -154,7 +154,7 @@ def BUSDtoEUR(driver, amount):
         return myBNBvalueInEUR
         
     except Exception as e:
-        print("Couldnt get EUR to USD value")
+        print("Couldnt get EUR to USD value : \n " + e)
         killDriver(driver)
         return None
 
